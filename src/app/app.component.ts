@@ -1,5 +1,9 @@
 import {Component} from '@angular/core';
 import {FormControl} from "@angular/forms";
+import {SearchService} from "./search.service";
+import {debounceTime, switchMap, tap} from "rxjs";
+import {Search} from "./search";
+import {SearchItem} from "./search-item";
 
 @Component({
   selector: 'app-root',
@@ -8,4 +12,13 @@ import {FormControl} from "@angular/forms";
 })
 export class AppComponent {
   search = new FormControl();
+  searchResult: SearchItem[];
+
+  constructor(private readonly searchService: SearchService) {
+    this.search.valueChanges.pipe(
+      debounceTime(300),
+      switchMap(search => this.searchService.getSearchResults(search)),
+      tap(({items}: Search) => this.searchResult = items)
+    ).subscribe();
+  }
 }
