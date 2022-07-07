@@ -7,6 +7,7 @@ import {
   Input,
   Output,
   QueryList,
+  ViewChild,
   ViewChildren
 } from '@angular/core';
 import {SearchItem} from "../search-item";
@@ -23,6 +24,8 @@ const ENTER_CODE = 13;
 })
 export class SearchListComponent {
   @ViewChildren('items') items: QueryList<ElementRef>;
+
+  @ViewChild('list') list: ElementRef;
 
   @Input() searchList: SearchItem[];
 
@@ -83,9 +86,15 @@ export class SearchListComponent {
 
   private changeSelectedOption(elementIndex: number) {
     this.items.forEach((element, index) => {
-      if (element.nativeElement.classList.contains('selected-search-item') && elementIndex !== index) {
+      if (element.nativeElement.classList.contains('selected-search-item')) {
         element.nativeElement.classList.remove('selected-search-item');
       } else if (elementIndex === index) {
+
+        this.list.nativeElement.scrollTo({
+          top: element.nativeElement.offsetTop,
+          behavior: "smooth"
+        })
+
         element.nativeElement.classList.add('selected-search-item');
       }
     })
