@@ -1,0 +1,18 @@
+.search {
+  position: relative;
+
+  .search-input {
+    width: 100%;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid black;
+    padding: 10px 5px;
+  }
+
+  .search-list {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 100%;
+  }
+}

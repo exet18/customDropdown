@@ -1,0 +1,10 @@
+<div class="list" #list [ngStyle]="{'height.px': height}">
+  <div
+    #items
+    class="search-item"
+    *ngFor="let item of searchList;let index = index"
+    id="option_{{index}}"
+    (click)="onSelected.emit(item.title)">
+    <p class="search-item-text">{{item.title}}</p>
+  </div>
+</div>
