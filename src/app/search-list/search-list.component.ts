@@ -59,9 +59,8 @@ export class SearchListComponent {
     if (!selectedItem) {
       return;
     }
-    const selectedItemIdNumber = this.getOptionIdNumber(selectedItem.nativeElement.id);
 
-    this.onSelected.emit(this.searchList[selectedItemIdNumber].title);
+    this.onSelected.emit(selectedItem.nativeElement.innerText);
   }
 
   private arrowUp(): void {
@@ -98,9 +97,5 @@ export class SearchListComponent {
         element.nativeElement.classList.add('selected-search-item');
       }
     })
-  }
-
-  private getOptionIdNumber(id: string): number {
-    return Number(id.replace(/\D/g, ''));
   }
 }

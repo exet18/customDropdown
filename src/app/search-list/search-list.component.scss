@@ -2,6 +2,17 @@
   overflow: auto;
 
   .search-item {
+    padding: 10px 5px;
+    border: none;
+    border-bottom: 1px solid black;
+    cursor: pointer;
+
+
+    &:hover {
+      background-color: gray;
+      color: white;
+    }
+
     &.selected-search-item {
       background-color: gray;
     }

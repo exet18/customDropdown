@@ -3,7 +3,8 @@
     #items
     class="search-item"
     *ngFor="let item of searchList;let index = index"
-    id="option_{{index}}">
-    <p>{{item.title}}</p>
+    id="option_{{index}}"
+    (click)="onSelected.emit(item.title)">
+    <p class="search-item-text">{{item.title}}</p>
   </div>
 </div>
