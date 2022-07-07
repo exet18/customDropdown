@@ -1,0 +1,9 @@
+<div class="list" [ngStyle]="{'height.px': height}">
+  <div
+    #items
+    class="search-item"
+    *ngFor="let item of searchList;let index = index"
+    id="option_{{index}}">
+    <p>{{item.title}}</p>
+  </div>
+</div>

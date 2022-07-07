@@ -1,0 +1,9 @@
+.list {
+  overflow: auto;
+
+  .search-item {
+    &.selected-search-item {
+      background-color: gray;
+    }
+  }
+}

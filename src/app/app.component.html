@@ -1,1 +1,16 @@
-<input type="text" class="search-input" [formControl]="search">
+<div class="search">
+  <input
+    type="text"
+    class="search-input"
+    [formControl]="search"
+    appFocusState
+    (onChangeFocus)="changeFocusState($event)"
+  >
+  <app-search-list
+    class="search-list"
+    *ngIf="isVisible"
+    [height]="300"
+    [searchList]="searchResult"
+    (onSelected)="selectOption($event)">
+  </app-search-list>
+</div>
