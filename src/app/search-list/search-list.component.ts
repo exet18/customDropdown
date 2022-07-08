@@ -1,20 +1,23 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
-  HostListener,
   Input,
+  OnDestroy,
   Output,
   QueryList,
   ViewChild,
   ViewChildren
 } from '@angular/core';
 import {SearchItem} from "../search-item";
+import {fromEvent, Subject, takeUntil, tap} from "rxjs";
 
-const ARROW_DOWN_CODE = 40;
-const ARROW_UP_CODE = 38;
-const ENTER_CODE = 13;
+const ARROW_DOWN_CODE = 'ArrowDown';
+const ARROW_UP_CODE = 'ArrowUp';
+const ENTER_CODE = 'Enter';
 
 @Component({
   selector: 'app-search-list',
@@ -22,80 +25,82 @@ const ENTER_CODE = 13;
   styleUrls: ['./search-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SearchListComponent {
-  @ViewChildren('items') items: QueryList<ElementRef>;
+export class SearchListComponent implements OnDestroy, AfterViewInit {
+  selectedOptionIndex = -1;
+  private destroy$ = new Subject<void>();
 
-  @ViewChild('list') list: ElementRef;
-
+  @ViewChild('listContainer') listContainer: ElementRef<HTMLDivElement>;
+  @ViewChildren('option') optionList: QueryList<ElementRef<HTMLDivElement>>;
   @Input() searchList: SearchItem[];
-
   @Input() height: number;
+  @Output() onSelected = new EventEmitter<string>();
 
-  @Output() onSelected = new EventEmitter();
-
-  private keyDownCounter = -1;
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeyDown(event: KeyboardEvent) {
-    switch (event.keyCode) {
-      case ARROW_UP_CODE: {
-        this.arrowUp();
-        break;
-      }
-      case ARROW_DOWN_CODE: {
-        this.arrowDown();
-        break;
-      }
-      case ENTER_CODE: {
-        this.chooseItem();
-        break;
-      }
-    }
+  constructor(private readonly cdr: ChangeDetectorRef) {
   }
 
-  chooseItem(): void {
-    const selectedItem = this.items.filter(item => item.nativeElement.classList.contains('selected-search-item'))[0];
+  chooseItem(index?: number): void {
+    if (index) {
+      this.selectedOptionIndex = index;
+    }
 
-    if (!selectedItem) {
+    if (!this.selectedOptionIndex) {
       return;
     }
 
-    this.onSelected.emit(selectedItem.nativeElement.innerText);
+    this.onSelected.emit(this.searchList[this.selectedOptionIndex].title);
+  }
+
+  ngAfterViewInit(): void {
+    fromEvent<KeyboardEvent>(window, 'keydown').pipe(
+      tap(({key}) => this.chooseAction(key)),
+      takeUntil(this.destroy$)
+    ).subscribe()
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.unsubscribe();
   }
 
   private arrowUp(): void {
-    this.keyDownCounter--;
+    this.selectedOptionIndex--;
 
-    if (this.keyDownCounter < 0) {
-      this.keyDownCounter = this.searchList.length - 1;
+    if (this.selectedOptionIndex < 0) {
+      this.selectedOptionIndex = this.searchList.length - 1;
     }
-
-    this.changeSelectedOption(this.keyDownCounter);
+    this.scrollContainer();
+    this.cdr.markForCheck();
   }
 
   private arrowDown(): void {
-    this.keyDownCounter++;
+    this.selectedOptionIndex++;
 
-    if (this.keyDownCounter > this.searchList.length - 1) {
-      this.keyDownCounter = 0;
+    if (this.selectedOptionIndex > this.searchList.length - 1) {
+      this.selectedOptionIndex = 0;
     }
-
-    this.changeSelectedOption(this.keyDownCounter);
+    this.scrollContainer();
+    this.cdr.markForCheck();
   }
 
-  private changeSelectedOption(elementIndex: number) {
-    this.items.forEach((element, index) => {
-      if (element.nativeElement.classList.contains('selected-search-item')) {
-        element.nativeElement.classList.remove('selected-search-item');
-      } else if (elementIndex === index) {
+  private scrollContainer() {
+    const selectedOption = this.optionList.get(this.selectedOptionIndex)?.nativeElement;
 
-        this.list.nativeElement.scrollTo({
-          top: element.nativeElement.offsetTop,
-          behavior: "smooth"
-        })
+    if (selectedOption) {
+      this.listContainer.nativeElement.scrollTop = selectedOption.offsetTop;
+    }
+  }
 
-        element.nativeElement.classList.add('selected-search-item');
-      }
-    })
+  private chooseAction(code: string) {
+    switch (code) {
+      case ARROW_UP_CODE:
+        this.arrowUp();
+        break;
+      case ARROW_DOWN_CODE:
+        this.arrowDown();
+        break;
+      case ENTER_CODE:
+        this.chooseItem();
+        break;
+    }
   }
 }
