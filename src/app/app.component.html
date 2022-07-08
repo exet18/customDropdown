@@ -1,9 +1,5 @@
 <div class="search">
-  <input
-    type="text"
-    class="search-input"
-    [formControl]="search"
-  >
+  <input #inputElement type="text" class="search-input" [formControl]="search">
   <app-search-list
     class="search-list"
     *ngIf="isVisible"

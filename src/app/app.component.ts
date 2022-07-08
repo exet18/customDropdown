@@ -1,7 +1,14 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  ViewChild
+} from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {SearchService} from "./search.service";
-import {debounceTime, filter, switchMap, tap} from "rxjs";
+import {debounceTime, filter, fromEvent, Subject, switchMap, takeUntil, tap} from "rxjs";
 import {Search} from "./search";
 import {SearchItem} from "./search-item";
 
@@ -11,17 +18,11 @@ import {SearchItem} from "./search-item";
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit{
   search = new FormControl();
   searchResult: SearchItem[] = [];
-  isFocus: boolean;
-
-  @HostListener('document:click', ['$event'])
-  handleClick(event: Event) {
-    const element = (event.target as HTMLElement);
-    this.isFocus = element.classList.contains('search-input') ||
-      element.classList.contains('search-item-text') || element.classList.contains('search-item');
-  }
+  private isFocus = false;
+  @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
 
 
   get isVisible(): boolean {
@@ -37,6 +38,15 @@ export class AppComponent {
       tap(({items}: Search) => {
         this.searchResult = items;
         cdr.markForCheck();
+      }),
+    ).subscribe();
+  }
+
+  ngAfterViewInit(): void {
+    fromEvent<MouseEvent>(document, 'click').pipe(
+      tap(event => {
+        this.isFocus = event.target === this.inputElement.nativeElement;
+        this.cdr.markForCheck();
       }),
     ).subscribe();
   }
