@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import {FormControl} from "@angular/forms";
 import {SearchService} from "./search.service";
-import {debounceTime, filter, fromEvent, Subject, switchMap, takeUntil, tap} from "rxjs";
+import {debounceTime, filter, fromEvent, switchMap, tap} from "rxjs";
 import {Search} from "./search";
 import {SearchItem} from "./search-item";
 
@@ -18,7 +18,7 @@ import {SearchItem} from "./search-item";
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppComponent implements AfterViewInit{
+export class AppComponent implements AfterViewInit {
   search = new FormControl();
   searchResult: SearchItem[] = [];
   private isFocus = false;
